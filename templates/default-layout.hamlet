@@ -1,0 +1,11 @@
+<div .container>
+    <div .row #messages>
+        $maybe msg <- mmsg
+            <div #message .alert .alert-success .alert-dismissible>
+                <button type=button data-dismiss=alert .close>&times;
+                #{msg}
+    ^{widget}
+    <div .row>
+        <hr>
+        <footer>
+            #{extraCopyright $ appExtra $ settings master}

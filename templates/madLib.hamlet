@@ -1,0 +1,15 @@
+<div .row>
+    <h1>#{madLibTitle lib}
+    $if perm
+        <a href=# .btn .btn-danger #delete>Delete
+    <a href=@{PlayR libId} .btn .btn-success>Play
+    <small>
+        $maybe email <- ownerEmail
+            _{MsgPosted email $ madLibAdded lib}
+        $nothing
+            _{MsgPostedTime $ madLibAdded lib}
+
+<div .row>
+    <h2>Template
+    <div>
+        #{madLibContent lib}

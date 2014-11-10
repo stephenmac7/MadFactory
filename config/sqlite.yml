@@ -1,0 +1,20 @@
+Default: &defaults
+  database: MadFactory.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: MadFactory_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: MadFactory_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: /opt/keter/database/MadFactory_production.sqlite3
+  poolsize: 100
+  <<: *defaults

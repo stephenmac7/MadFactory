@@ -1,0 +1,19 @@
+<div .row>
+    <h1>_{MsgListTitle}
+    $if null libs
+        <p>_{MsgNoLibs}
+    $else
+        <ul>
+            $forall Entity libId lib <- libs
+                <li>
+                    <a href=@{MadLibR libId}>#{madLibTitle lib}
+
+<div .row>
+    <h2>_{MsgNewMadLib}
+    $maybe (widget, enctype) <- formMaybe
+        <form method=post action=@{ListR} enctype=#{enctype}>
+            ^{widget}
+    $nothing
+        You must be #
+        <a href=@{AuthR LoginR}>logged in #
+        to create a MadLib.

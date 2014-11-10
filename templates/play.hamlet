@@ -1,0 +1,8 @@
+<div .row>
+    $if showError
+        <div #message .alert .alert-danger .alert-dismissible>
+            <button type=button data-dismiss=alert .close>&times;
+            _{MsgPlayInvalid}
+    <h1>_{MsgPlay $ madLibTitle lib}
+<div .row>
+    <form method=post action=@{PlayR libId} enctype=#{enctype}>^{widget}

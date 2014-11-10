@@ -1,0 +1,19 @@
+Default: &defaults
+  host: "*4" # any IPv4 host
+  port: 3002
+  approot: "http://localhost:3002"
+  #analytics: UA-YOURCODE
+  copyright: Created by Stephen McIntosh
+
+Development:
+  <<: *defaults
+
+Testing:
+  <<: *defaults
+
+Staging:
+  <<: *defaults
+
+Production:
+  approot: "http://madlibs.stephenmac.com"
+  <<: *defaults

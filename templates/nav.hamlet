@@ -1,0 +1,21 @@
+<nav .navbar .navbar-default .navbar-static-top>
+    <div .container-fluid>
+        <div .navbar-header>
+            <button type=button .navbar-toggle .collapsed data-toggle=collapse data-target="#col">
+                <span .icon-bar>
+                <span .icon-bar>
+                <span .icon-bar>
+            <a .navbar-brand href=@{HomeR}>MadLib Factory
+        <div .collapse .navbar-collapse #col>
+            <ul .nav .navbar-nav>
+                <li :Just (HomeR) == mcurr:.active>
+                    <a href=@{HomeR}>Home
+                <li :Just (ListR) == mcurr:.active>
+                    <a href=@{ListR}>'Libs
+            <ul .nav .navbar-nav .navbar-right>
+                $maybe _ <- mauth
+                    <li>
+                        <a href=@{AuthR LogoutR}>Logout
+                $nothing
+                    <li :Just (AuthR LoginR) == mcurr:.active>
+                        <a href=@{AuthR LoginR}>Login

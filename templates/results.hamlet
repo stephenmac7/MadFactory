@@ -1,0 +1,7 @@
+<div .row>
+    <h1>_{MsgResults $ madLibTitle lib}
+    <div>#{results}
+    <hr>
+    <h3>_{MsgAgain}
+    <form method=post action=@{PlayR libId} enctype=#{enctype}>
+        ^{widget}

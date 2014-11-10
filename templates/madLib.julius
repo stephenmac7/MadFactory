@@ -1,0 +1,12 @@
+$('#delete').click(function() {
+    var request = $.ajax({
+        url: '@{MadLibR libId}',
+        type: 'DELETE'
+    });
+    request.done(function() {
+        window.location = '@{ListR}';
+    });
+    request.fail(function() {
+        $('#messages').append('<div id="message" class="alert alert-warning alert-dismissible"><button type="button" data-dismiss="alert" class="close">&times;</button><strong>Error!</strong> Could not delete this MadLib.</div>');
+    });
+});
