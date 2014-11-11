@@ -1,9 +1,9 @@
 module Handler.Play where
 
-import Import
-import Text.Pandoc
-import MadLibUtil
-import Text.Blaze.Html.Renderer.String (renderHtml)
+import           Import
+import           MadLibUtil
+import           Text.Blaze.Html.Renderer.String (renderHtml)
+import           Text.Pandoc
 
 getPlayR :: MadLibId -> Handler Html
 getPlayR libId = do

@@ -21,6 +21,7 @@ import Yesod.Core.Types (Logger)
 import Data.Text (Text)
 import Data.Time (UTCTime, formatTime)
 import System.Locale (defaultTimeLocale, TimeLocale(..))
+import Control.Applicative ((<$>))
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -59,7 +60,7 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+    makeSessionBackend _ = Just <$> defaultClientSessionBackend
         120    -- timeout in minutes
         "config/client_session_key.aes"
 
@@ -134,7 +135,7 @@ libAuthorized libId = do
             | otherwise      -> do
                 authorized <- runDB $ do
                     lib <- get404 libId
-                    return $ uId == (madLibUser lib)
+                    return $ uId == madLibUser lib
                 if authorized then return Authorized else unauthorizedI MsgNoPermission
 
 loggedIn :: Handler AuthResult
@@ -163,8 +164,8 @@ instance YesodAuth App where
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
             Just (Entity uid _) -> return $ Just uid
-            Nothing -> do
-                fmap Just $ insert User
+            Nothing ->
+                Just <$> insert User
                     { userIdent = credsIdent creds
                     , userPassword = Nothing
                     , userAdmin = False

@@ -1,7 +1,8 @@
 module Handler.List where
 
-import Import
-import Yesod.Form.Bootstrap3
+import           Control.Monad         (liftM)
+import           Import
+import           Yesod.Form.Bootstrap3
 
 madLibForm :: Form MadLib
 madLibForm = renderBootstrap3 (BootstrapHorizontalForm (ColMd 0) (ColMd 2) (ColMd 0) (ColMd 10)) $ MadLib
@@ -14,8 +15,9 @@ madLibForm = renderBootstrap3 (BootstrapHorizontalForm (ColMd 0) (ColMd 2) (ColM
 getListR :: Handler Html
 getListR = do
     mauth <- maybeAuth
-    formMaybe <- case mauth of Nothing -> return Nothing
-                               (Just _) -> generateFormPost madLibForm >>= return . Just
+    formMaybe <- case mauth of
+                   Nothing -> return Nothing
+                   Just _  -> liftM Just $ generateFormPost madLibForm
     libs <- runDB $ selectList [] [Desc MadLibAdded]
     defaultLayout $ do
         setTitleI MsgListTitle
@@ -30,5 +32,5 @@ postListR = do
             setMessageI $ MsgMadLibCreated $ madLibTitle lib
             redirect $ MadLibR libId
         _ -> defaultLayout $ do
-                setTitleI MsgListTitle
-                $(widgetFile "addFail")
+            setTitleI MsgListTitle
+            $(widgetFile "addFail")

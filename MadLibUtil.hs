@@ -1,15 +1,16 @@
 module MadLibUtil where
 
-import Import
-import Text.Pandoc.Walk (query, walkM)
-import Data.Text (append, pack, unpack)
-import Data.Attoparsec.Text
-import Text.Pandoc
-import qualified Data.Attoparsec.Text as APT
 import qualified Control.Monad.State.Lazy as ST
-import Yesod.Form.Bootstrap3
-import qualified Data.Map.Strict as Map
-import qualified Data.Set as Set
+import           Data.Attoparsec.Text
+import qualified Data.Attoparsec.Text     as APT
+import qualified Data.Map.Strict          as Map
+import qualified Data.Set                 as Set
+import           Data.Text                (pack, unpack)
+import qualified Data.Text                as T (concat)
+import           Import
+import           Text.Pandoc
+import           Text.Pandoc.Walk         (query, walkM)
+import           Yesod.Form.Bootstrap3
 
 -- Forms
 madContentsForm :: ([Text], [Text]) -> Form MadContents
@@ -33,18 +34,10 @@ singlesField singles = Field p view UrlEncoded
       p vals _
         | checkLength vals singles = return $ Right $ Just vals
         | otherwise                = return $ Right Nothing
-      view idAttr nameAttr otherAttrs eResult isReq = [whamlet|
-        <div .row>
-            <div .form-horizontal>
-                $forall (single, val) <- pairs
-                    <div .form-group>
-                        <label .col-xs-offset-1 .col-xs-3 .control-label>#{single}
-                        <div .col-xs-8>
-                            <input id="#{idAttr}-#{single}" name=#{nameAttr} value=#{val} *{otherAttrs} :isReq:required>
-      |]
-        where
-          pairs = case eResult of Right vals -> paddedZip singles vals
-                                  Left _ -> paddedZip singles []
+      view = viewHelper (\x ->
+               case x of
+                 Right vals -> paddedZip singles vals
+                 Left _ -> paddedZip singles [])
 
 multiesField :: [Text] -> Field Handler (Map.Map Text Text)
 multiesField multies = Field p view UrlEncoded
@@ -52,18 +45,18 @@ multiesField multies = Field p view UrlEncoded
       p vals _
         | checkLength vals multies = return $ Right $ Just . Map.fromList $ zip multies vals
         | otherwise                = return $ Right Nothing
-      view idAttr nameAttr otherAttrs eResult isReq = [whamlet|
-        <div .row>
-            <div .form-horizontal>
-                $forall (multi, val) <- Map.toList results
-                    <div .form-group>
-                        <label .col-xs-offset-1 .col-xs-3 .control-label>#{multi}
-                        <div .col-xs-8>
-                            <input id="#{idAttr}-#{multi}" name=#{nameAttr} value=#{val} *{otherAttrs} :isReq:required>
-      |]
-        where
-          results = case eResult of Right m -> m
-                                    Left _ -> foldl (\acc x -> Map.insert x "" acc) Map.empty multies
+      view = viewHelper (\x -> 
+               case x of
+                 Right m -> Map.toList m
+                 Left _ -> paddedZip multies [])
+
+viewHelper :: (Either Text a -> [(Text, Text)]) -> FieldViewFunc Handler a
+viewHelper pairF idAttr nameAttr otherAttrs eResult isReq = let pairs = pairF eResult in do
+    [whamlet|
+      $forall (key, val) <- pairs
+          <input .word .form-control id="#{idAttr}-#{key}" name=#{nameAttr} value=#{val} placeholder=#{key} *{otherAttrs} :isReq:required>
+    |]
+    toWidget [lucius| input.word { margin-top: 10px; }|]
 
 -- MadLib heavy lifting
 data MadContents = MadContents [Text] (Map.Map Text Text)
@@ -77,9 +70,10 @@ wordParser = do
     _ <- anyChar
     -- Get the BlankType
     btype <- satisfy (\x -> x == 's' || x == 'm')
-    let parsedB = case btype of 's' -> SingleBlank
-                                'm' -> MultiBlank
-                                _   -> \_ _ _ -> Word "This should never happen."
+    let parsedB = case btype of
+                    's' -> SingleBlank
+                    'm' -> MultiBlank
+                    _   -> \_ _ _ -> Word "This should never happen."
     -- Sep. from the part of speech by a colon
     _ <- char ':'
     -- The part of speech
@@ -92,15 +86,19 @@ wordParser = do
     return $ parsedB begin pos end
 
 sortWords :: [LibWord] -> ([Text], [Text])
-sortWords lws = let (singles, multies) = foldr f ([], Set.empty) lws in (singles, Set.toList multies)
-    where f x (singles, multies) = case x of Word _ -> (singles, multies)
-                                             SingleBlank _ pos _ -> (pos:singles, multies)
-                                             MultiBlank _ pos _ -> (singles, Set.insert pos multies)
+sortWords lws = let (singles, multies) = foldr f ([], Set.empty) lws
+                  in (singles, Set.toList multies)
+    where f x (singles, multies) =
+            case x of Word _ -> (singles, multies)
+                      SingleBlank _ pos _ -> (pos:singles, multies)
+                      MultiBlank _ pos _ -> (singles, Set.insert pos multies)
 
 extractLib :: Inline -> [LibWord]
-extractLib (Str s) = let packed = pack s in case parseOnly wordParser packed of
+extractLib (Str s) = case parseOnly wordParser packed of
     Left _ -> [Word packed]
     Right x -> [x]
+  where
+    packed = pack s
 extractLib _ = []
 
 extractLibs :: Pandoc -> [LibWord]
@@ -114,11 +112,15 @@ generateEach :: Inline -> ST.State MadContents Inline
 generateEach (Str s) = do
     (MadContents singles multies) <- ST.get
     let (thisSingle, nextSingles) = safeDetatch singles
+        beheaded                  = MadContents nextSingles multies
     case parseOnly wordParser (pack s) of
         Left _ -> return $ Str s
-        Right x -> case x of SingleBlank begin _ end -> ST.put (MadContents nextSingles multies) >> (return . Str . unpack $ begin `append` thisSingle `append` end)
-                             MultiBlank begin pos end -> return $ Str . unpack $ begin `append` Map.findWithDefault "" pos multies `append` end
-                             Word _ -> return $ Str "This should never happen."
+        Right x -> case x of
+                     SingleBlank begin _ end -> do
+                         ST.put beheaded
+                         return . Str . unpack $ T.concat [begin, thisSingle, end]
+                     MultiBlank begin pos end -> return $ Str . unpack $ T.concat [begin, Map.findWithDefault "" pos multies, end]
+                     Word _ -> return $ Str "This should never happen."
 generateEach x = return x
 
 generateOutput :: Pandoc -> MadContents -> Html

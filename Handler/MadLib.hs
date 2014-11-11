@@ -1,6 +1,6 @@
 module Handler.MadLib where
 
-import Import
+import           Import
 
 -- Routes
 getMadLibR :: MadLibId -> Handler Html
@@ -13,8 +13,9 @@ getMadLibR libId = do
     -- Figure out user information
     mauth <- maybeAuth
     let ownerId = madLibUser lib
-    let perm = case mauth of Nothing -> False
-                             (Just (Entity userId user)) -> userAdmin user || ownerId == userId
+    let perm = case mauth of
+                 Nothing -> False
+                 Just (Entity userId user) -> userAdmin user || ownerId == userId
     -- Set up the layout
     defaultLayout $ do
         setTitleI $ madLibTitle lib
