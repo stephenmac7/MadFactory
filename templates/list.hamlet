@@ -13,6 +13,21 @@
     $maybe (widget, enctype) <- formMaybe
         <form method=post action=@{ListR} enctype=#{enctype}>
             ^{widget}
+        <a href=# data-toggle=collapse data-target=#edit-help>Editing Help
+        <div #edit-help .collapse>
+            Select a word to highlight any matches. Trailing spaces will be underlined in red.
+            <h4>Find and Replace
+            <dl>
+                <dt>Ctrl-F / Cmd-F
+                <dd>Start searching
+                <dt>Ctrl-G / Cmd-G
+                <dd>Find next
+                <dt>Shift-Ctrl-G / Shift-Cmd-G
+                <dd>Find previous
+                <dt>Shift-Ctrl-F / Cmd-Option-F
+                <dd>Replace
+                <dt>Shift-Ctrl-R / Shift-Cmd-Option-F
+                <dd>Replace all
     $nothing
         You must be #
         <a href=@{AuthR LoginR}>logged in #

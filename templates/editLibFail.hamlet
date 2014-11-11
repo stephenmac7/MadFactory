@@ -1,0 +1,6 @@
+<div .alert .alert-danger>
+    Please correct your MadLib
+
+<h2>Edit MadLib
+<form method=post action=@{MadLibR libId} enctype=#{enctype}>
+    ^{widget}

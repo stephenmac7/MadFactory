@@ -1,12 +1,60 @@
-$('#delete').click(function() {
-    var request = $.ajax({
-        url: '@{MadLibR libId}',
-        type: 'DELETE'
+$.extend({
+    replaceTag: function (currentElem, newTagObj, keepProps) {
+        var $currentElem = $(currentElem);
+        var i, $newTag = $(newTagObj).clone();
+        if (keepProps) {//{{{
+            newTag = $newTag[0];
+            newTag.className = currentElem.className;
+            $.extend(newTag.classList, currentElem.classList);
+            $.extend(newTag.attributes, currentElem.attributes);
+        }//}}}
+        $currentElem.wrapAll($newTag);
+        $currentElem.contents().unwrap();
+        // return node; (Error spotted by Frank van Luijn)
+        return this; // Suggested by ColeLawrence
+    }
+});
+
+$.fn.extend({
+    replaceTag: function (newTagObj, keepProps) {
+        // "return" suggested by ColeLawrence
+        return this.each(function() {
+            jQuery.replaceTag(this, newTagObj, keepProps);
+        });
+    }
+});
+
+$(document).ready(function() {
+    $('#delete').click(function() {
+        var request = $.ajax({
+            url: '@{MadLibR libId}',
+            type: 'DELETE'
+        });
+        request.done(function() {
+            window.location = '@{ListR}';
+        });
+        request.fail(function() {
+            $('#messages').append('<div id="message" class="alert alert-warning alert-dismissible"><button type="button" data-dismiss="alert" class="close">&times;</button><strong>Error!</strong> Could not delete this MadLib.</div>');
+        });
     });
-    request.done(function() {
-        window.location = '@{ListR}';
-    });
-    request.fail(function() {
-        $('#messages').append('<div id="message" class="alert alert-warning alert-dismissible"><button type="button" data-dismiss="alert" class="close">&times;</button><strong>Error!</strong> Could not delete this MadLib.</div>');
+    $('#edit').click(function() {
+        var form = $('form');
+        if (form.length) { // If any forms are on the page, submit
+            form.submit();
+        }
+        else { // Otherwise, set one up
+            $(this).html('Save'); // Change the button name so that the user can save using the same button
+            $('#outer').replaceTag(
+              '<form method="POST" action="@{MadLibR libId}" enctype="application/x-www-form-urlencoded">',
+              false
+            );
+            var titleV = $('#title').html();
+            var templateV = $('#template').html();
+            $('#title').replaceWith($('<input id="title" name="f1" class="input-lg form-control"></input>'));
+            $('#template').replaceTag('<textarea id="template" name="f2" class="form-control"></textarea>', false);
+            $('#title').val(titleV);
+            $('#template').val(templateV);
+            cm_areas();
+        }
     });
 });

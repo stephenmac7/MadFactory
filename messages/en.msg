@@ -11,7 +11,9 @@ NewMadLibContents: Contents
 NewMadLibSubmit: Create!
 
 MadLibCreated name@Text: "#{name}" created.
+MadLibUpdated name@Text: "#{name}" updated.
 MadLibDeleted name@Text: "#{name}" deleted.
+EditMadLibSubmit: Save
 
 Singles: Singles
 Multies: Multies

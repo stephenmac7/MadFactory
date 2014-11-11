@@ -1,0 +1,16 @@
+.CodeMirror-focused .cm-matchhighlight {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+    background-position: bottom;
+    background-repeat: repeat-x;
+}
+
+.cm-trailingspace {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QUXCToH00Y1UgAAACFJREFUCNdjPMDBUc/AwNDAAAFMTAwMDA0OP34wQgX/AQBYgwYEx4f9lQAAAABJRU5ErkJggg==);
+    background-position: bottom left;
+    background-repeat: repeat-x;
+}
+
+.CodeMirror {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}

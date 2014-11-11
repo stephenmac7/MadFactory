@@ -16,6 +16,7 @@ library
                      Foundation
                      Import
                      MadLibUtil
+                     CodeMirror
                      Model
                      Settings
                      Settings.StaticFiles

@@ -3,14 +3,21 @@ module Handler.List where
 import           Control.Monad         (liftM)
 import           Import
 import           Yesod.Form.Bootstrap3
+import           CodeMirror
+
+hForm :: BootstrapFormLayout
+hForm = BootstrapHorizontalForm (ColMd 0) (ColMd 2) (ColMd 0) (ColMd 10)
+
+submit :: AppMessage -> AForm Handler ()
+submit m = bootstrapSubmit (BootstrapSubmit m "btn-default" [])
 
 madLibForm :: Form MadLib
-madLibForm = renderBootstrap3 (BootstrapHorizontalForm (ColMd 0) (ColMd 2) (ColMd 0) (ColMd 10)) $ MadLib
+madLibForm = renderBootstrap3 hForm $ MadLib
     <$> areq textField (bfs MsgNewMadLibTitle) (Just "No Title")
     <*> lift requireAuthId
     <*> lift (liftIO getCurrentTime)
     <*> areq htmlField (bfs MsgNewMadLibContents) Nothing
-    <*  bootstrapSubmit (BootstrapSubmit MsgNewMadLibSubmit "btn-default" [])
+    <*  submit MsgNewMadLibSubmit
 
 getListR :: Handler Html
 getListR = do
@@ -21,6 +28,7 @@ getListR = do
     libs <- runDB $ selectList [] [Desc MadLibAdded]
     defaultLayout $ do
         setTitleI MsgListTitle
+        codeMirror
         $(widgetFile "list")
 
 postListR :: Handler Html
@@ -33,4 +41,5 @@ postListR = do
             redirect $ MadLibR libId
         _ -> defaultLayout $ do
             setTitleI MsgListTitle
-            $(widgetFile "addFail")
+            codeMirror
+            $(widgetFile "newLibFail")
