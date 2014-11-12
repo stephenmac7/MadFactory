@@ -7,7 +7,7 @@ codeMirror :: Widget
 codeMirror = do
     addStylesheet $ StaticR css_codemirror_css
     addStylesheet $ StaticR css_codemirror_custom_css
-    addStylesheet $ StaticR js_addon_dialog_dialog_css
+    addStylesheet $ StaticR css_dialog_css
     addScript $ StaticR js_codemirror_min_js
     toWidget [julius|
       function cm_areas() {
