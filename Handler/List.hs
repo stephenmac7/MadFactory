@@ -16,6 +16,7 @@ madLibForm = renderBootstrap3 hForm $ MadLib
     <$> areq textField (bfs MsgNewMadLibTitle) (Just "No Title")
     <*> lift requireAuthId
     <*> lift (liftIO getCurrentTime)
+    <*> pure False
     <*> areq htmlField (bfs MsgNewMadLibContents) Nothing
     <*  submit MsgNewMadLibSubmit
 
@@ -23,9 +24,13 @@ getListR :: Handler Html
 getListR = do
     mauth <- maybeAuth
     formMaybe <- case mauth of
-                   Nothing -> return Nothing
                    Just _  -> liftM Just $ generateFormPost madLibForm
-    libs <- runDB $ selectList [] [Desc MadLibAdded]
+                   Nothing -> return Nothing
+    let filters = let baseFil = [MadLibPublic ==. True] in
+                    case mauth of
+                      Just (Entity userId user)  -> if userAdmin user then [] else baseFil ||. [MadLibUser ==. userId]
+                      Nothing                    -> baseFil
+    libs <- runDB $ selectList filters [Desc MadLibAdded]
     defaultLayout $ do
         setTitleI MsgListTitle
         codeMirror

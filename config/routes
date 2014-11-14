@@ -8,3 +8,4 @@
 /libs ListR GET POST
 /libs/#MadLibId MadLibR GET POST DELETE
 /libs/#MadLibId/play PlayR GET POST
+/libs/#MadLibId/pub MadLibPublishR POST

@@ -25,6 +25,7 @@ library
                      Handler.List
                      Handler.MadLib
                      Handler.Play
+                     Handler.MadLibPublish
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

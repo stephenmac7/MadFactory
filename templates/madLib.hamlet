@@ -1,17 +1,24 @@
 <div #outer>
-    <div .row>
+    <div .row .col-sm-12>
         <h1 #title>#{madLibTitle lib}
+    <div .row>
+        <div .col-sm-6>
+            $if perm
+                <a href=# .btn .btn-danger #delete>Delete
+                <a href=# .btn .btn-primary #edit>Edit
+            <a href=@{PlayR libId} .btn .btn-success>Play
         $if perm
-            <a href=# .btn .btn-danger #delete>Delete
-            <a href=# .btn .btn-primary #edit>Edit
-        <a href=@{PlayR libId} .btn .btn-success>Play
+            <div .col-sm-6>
+                <span .pull-right>
+                    ^{bootstrapSwitch switchId []}
+    <div .row .col-sm-12>
         <small>
             $maybe email <- ownerEmail
                 _{MsgPosted email $ madLibAdded lib}
             $nothing
                 _{MsgPostedTime $ madLibAdded lib}
 
-    <div .row>
+    <div .row .col-sm-12>
         <h2>Template
         <div #template>
             #{madLibContent lib}

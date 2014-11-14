@@ -57,4 +57,19 @@ $(document).ready(function() {
             cm_areas();
         }
     });
+    $('##{rawJS switchId}').bootstrapSwitch({
+        onText: "Public", offText: "Private",
+        onColor: "success", offColor: "warning",
+        size: "small", state: #{toJSON $ madLibPublic lib},
+        onSwitchChange: function(e, state) {
+            var request = $.ajax({
+                url: '@{MadLibPublishR libId}',
+                type: 'POST',
+                data: { 'public': state }
+            });
+            request.fail(function() {
+                $('#messages').append('<div id="message" class="alert alert-warning alert-dismissible"><button type="button" data-dismiss="alert" class="close">&times;</button><strong>Error!</strong> Could not edit this MadLib.</div>');
+            });
+        }
+    });
 });

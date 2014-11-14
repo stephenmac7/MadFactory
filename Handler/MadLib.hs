@@ -1,10 +1,11 @@
 module Handler.MadLib where
 
-import           Import
 import           CodeMirror
-import           Handler.List (hForm, submit)
+import           Control.Monad         (when)
+import           Handler.List          (hForm, submit)
+import           Import
+import           Text.Julius           (rawJS)
 import           Yesod.Form.Bootstrap3
-import           Control.Monad (when)
 
 -- Forms
 madLibEditForm :: MadLib -> Form (Text, Html)
@@ -12,6 +13,15 @@ madLibEditForm lib = renderBootstrap3 hForm $ (,)
     <$> areq textField (bfs MsgNewMadLibTitle) (Just $ madLibTitle lib)
     <*> areq htmlField (bfs MsgNewMadLibContents) (Just $ madLibContent lib)
     <*  submit MsgEditMadLibSubmit
+
+-- Widgets
+bootstrapSwitch :: Text -> [(Text, Text)] -> Widget
+bootstrapSwitch htmlId attrs = do
+    addStylesheetRemote "//cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.2.1/css/bootstrap3/bootstrap-switch.min.css"
+    addScriptRemote "//cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.2.1/js/bootstrap-switch.min.js"
+    [whamlet|
+        <input type="checkbox" id=#{htmlId} *{attrs}>
+    |]
 
 -- Routes
 getMadLibR :: MadLibId -> Handler Html
@@ -28,6 +38,7 @@ getMadLibR libId = do
                  Nothing -> False
                  Just (Entity userId user) -> userAdmin user || ownerId == userId
     -- Set up the layout
+    switchId <- newIdent
     defaultLayout $ do
         when perm codeMirror
         setTitleI $ madLibTitle lib
