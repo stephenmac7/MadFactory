@@ -100,6 +100,7 @@ instance Yesod App where
     -- Routes requiring authentication.
     isAuthorized ListR True = loggedIn
     isAuthorized (MadLibR libId) True = libAuthorized libId
+    isAuthorized (MadLibPublishR libId) True = libAuthorized libId
     -- Default to Authorized for now.
     isAuthorized _ _ = return Authorized
 
